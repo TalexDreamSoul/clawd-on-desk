@@ -1,14 +1,15 @@
 {
   "name": "Clawd Mobile",
   "short_name": "Clawd",
-  "description": "Monitor Claude Code sessions from your phone",
+  "description": "Monitor Claude Code sessions from your phone or tablet",
   "start_url": "/mobile/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#111318",
   "theme_color": "#111318",
-  "orientation": "portrait",
+  "orientation": "any",
   "icons": [
     { "src": "icons/icon-256.png", "sizes": "256x256", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }

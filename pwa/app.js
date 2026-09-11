@@ -48,6 +48,17 @@
     return (typeof ICONS !== "undefined" && ICONS[name]) || "";
   }
 
+  // Nav tabs and card footers are <div>s, so a hardware keyboard cannot
+  // reach them on its own. Bind pointer and key activation together.
+  function onActivate(el, handler) {
+    el.addEventListener("click", handler);
+    el.addEventListener("keydown", function(e) {
+      if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+      e.preventDefault();
+      handler.call(this, e);
+    });
+  }
+
   function shortPath(p) {
     if (!p) return "";
     var parts = p.split(/[/\\]/);
@@ -330,7 +341,7 @@
       for (var i = 0; i < entries.length; i++) html += this._renderCard(entries[i][0], entries[i][1]);
       this.container.innerHTML = html;
       this.container.querySelectorAll(".card-footer").forEach(function(el) {
-        el.addEventListener("click", function() { self.toggleExpand(this.getAttribute("data-sid")); });
+        onActivate(el, function() { self.toggleExpand(this.getAttribute("data-sid")); });
       });
       if (this._animatingSid) {
         var animatingSid = this._animatingSid;
@@ -365,7 +376,9 @@
       if (s.updatedAt) { html += '<span class="meta-sep">&middot;</span><span class="meta-item meta-time" data-ts="' + s.updatedAt + '">' + formatAgo(s.updatedAt) + '</span>'; }
       html += '</div>';
       html += '<div class="card-divider"></div>';
-      html += '<div class="card-footer" data-sid="' + sid + '"><div class="footer-events">' + icon("activity") + '<span>最近事件</span>';
+      html += '<div class="card-footer" data-sid="' + sid + '" tabindex="0" role="button"'
+        + ' aria-expanded="' + (isExpanded ? "true" : "false") + '"><div class="footer-events">'
+        + icon("activity") + '<span>最近事件</span>';
       if (events.length) html += '<span class="event-count">' + events.length + '</span>';
       html += '</div><span class="footer-chevron">' + (isExpanded ? icon("collapse") : icon("expand")) + '</span></div>';
       if (events.length) html += this._renderEvents(events, isExpanded, this._animatingSid === sid);
@@ -500,14 +513,16 @@
     _bindNav() {
       var self = this;
       document.querySelectorAll(".nav-tab").forEach(function(tab) {
-        tab.addEventListener("click", function() { self._switchTab(this.getAttribute("data-tab")); });
+        onActivate(tab, function() { self._switchTab(this.getAttribute("data-tab")); });
       });
     }
 
     _switchTab(tabId) {
       this.activeTab = tabId;
       document.querySelectorAll(".nav-tab").forEach(function(t) {
-        t.classList.toggle("active", t.getAttribute("data-tab") === tabId);
+        var isActive = t.getAttribute("data-tab") === tabId;
+        t.classList.toggle("active", isActive);
+        t.setAttribute("aria-selected", isActive ? "true" : "false");
       });
       document.getElementById("page-sessions").classList.toggle("hidden", tabId !== "sessions");
       document.getElementById("page-settings").classList.toggle("hidden", tabId !== "settings");
